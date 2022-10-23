@@ -64,9 +64,7 @@ class connection_sqlite:
             self.query_2 = "INSERT INTO spam(`from`,`to`, date, subject, content) VALUES(?,?,?,?,?)"
 
 
-def add(email, conection, spam=False):
-    con_instance = conection(spam)
-
+def add(email, con_instance):
     conn = con_instance.conn
     curs = conn.cursor()
 
@@ -82,8 +80,6 @@ def add(email, conection, spam=False):
     curs.execute(con_instance.query_2, (fm, to, date, subject, content,))
     conn.commit()
 
-    conn.close()
-
 
 def ham_get(connection):
     con_instance = connection()
@@ -96,6 +92,8 @@ def ham_get(connection):
     conn.commit()
 
     result = curs.fetchall()
+
+    result = [i[0] for i in result]
 
     label = [True] * len(result)
 
@@ -117,6 +115,8 @@ def spam_get(connection):
     conn.commit()
 
     result = curs.fetchall()
+
+    result = [i[0] for i in result]
 
     label = [False] * len(result)
 

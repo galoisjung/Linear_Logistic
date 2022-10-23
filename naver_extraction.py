@@ -1,7 +1,9 @@
 import json
+import re
 from imaplib import IMAP4_SSL
 import email
 import Dao_email
+import numpy as np
 
 with open('conf.json') as f:
     config = json.load(f)
@@ -16,8 +18,18 @@ def findEncodingInfo(txt):
 def contents_extract(email):
     result = dict()
 
-    result['From'] = email['From']
-    result['To'] = email['To']
+    email_from = re.search("<(.+)[>]", str(email['From']))
+    if email_from != None:
+        result['From'] = email_from.group(1)
+    else:
+        result['From'] = email['From']
+
+    email_to = re.search("<(.+)[>]", str(email['To']))
+    if email_to != None:
+        result['To'] = email_from.group(1)
+    else:
+        result['To'] = email['To']
+
     result['Date'] = email['Date']
 
     if email['Subject'] is not None:
@@ -44,7 +56,6 @@ def dfs(email_cont, stack=[]):
     result = str()
     stack.append(email_cont)
     while len(stack) > 0:
-        print(len(stack))
         email_cont = stack.pop()
         if email_cont.is_multipart():
             stack.extend(email_cont.get_payload())
@@ -75,6 +86,8 @@ def spam_extraction(connection):
 
     all_email = data[0].split()
 
+    con_instance = connection(True)
+
     for i in all_email:
         print(i)
         result, maildata = mail.uid('fetch', i, '(RFC822)')
@@ -82,7 +95,8 @@ def spam_extraction(connection):
         email_message = email.message_from_bytes(raw_email)
 
         email_obj = contents_extract(email_message)
-        Dao_email.add(email_obj, connection, True)
+        Dao_email.add(email_obj, con_instance)
+    con_instance.conn.close()
 
 
 def ham_extraction(connection):
@@ -94,6 +108,8 @@ def ham_extraction(connection):
 
     all_email = data[0].split()
 
+    con_instance = connection(False)
+
     for i in all_email:
         print(i)
         result, maildata = mail.uid('fetch', i, '(RFC822)')
@@ -101,7 +117,8 @@ def ham_extraction(connection):
         email_message = email.message_from_bytes(raw_email)
 
         email_obj = contents_extract(email_message)
-        Dao_email.add(email_obj, connection, False)
+        Dao_email.add(email_obj, con_instance)
+    con_instance.conn.close()
 
 
 def making_doclist(per, connection):
@@ -111,19 +128,27 @@ def making_doclist(per, connection):
     hamlist = [i for i in hamzip]
     spamlist = [i for i in spamzip]
 
-    resultham = []
-    resultspam = []
-
-    resultham.extend(hamlist)
-    resultspam.extend(spamlist)
+    ham_arr = np.array(hamlist)
+    spam_arr = np.array(spamlist)
 
     train_set = []
     test_set = []
 
-    train_set.extend(hamlist[0: int(len(hamlist) * per)])
-    test_set.extend(hamlist[int(len(hamlist) * per):])
+    ham_rand = np.random.rand(ham_arr.shape[0])
+    spam_rand = np.random.rand(spam_arr.shape[0])
 
-    train_set.extend(spamlist[0: int(len(spamlist) * per)])
-    test_set.extend(spamlist[int(len(spamlist) * per):])
+    ham_split = ham_rand < np.percentile(ham_rand, per * 100)
+    spam_split = spam_rand < np.percentile(spam_rand, per * 100)
+
+    ham_train = ham_arr[ham_split]
+    spam_train = spam_arr[spam_split]
+    ham_test = ham_arr[~ham_split]
+    spam_test = spam_arr[~spam_split]
+
+    train_set.extend(ham_train.tolist())
+    train_set.extend(spam_train.tolist())
+
+    test_set.extend(ham_test.tolist())
+    test_set.extend(spam_test.tolist())
 
     return train_set, test_set
