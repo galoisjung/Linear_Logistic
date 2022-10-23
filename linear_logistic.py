@@ -115,7 +115,7 @@ class noun:
         return result
 
 
-def separate_target(doc, method):
+def separate_target(doc, method, v):
     data = []
     target = []
     for i in doc:
@@ -124,7 +124,7 @@ def separate_target(doc, method):
             target.append(1)
         else:
             target.append(0)
-    tdm = making_dtm(data, method)
+    tdm = making_dtm(data, method, v)
     t = np.array(target)
     return tdm, t
 
@@ -132,12 +132,11 @@ def separate_target(doc, method):
 def making_BOV(data, method):
     v = list()
     for i in data:
-        v.extend(method.split(i))
+        v.extend(method.split(i[0]))
     return list(set(v))
 
 
-def making_dtm(doc, method):
-    v = making_BOV(doc, method)
+def making_dtm(doc, method, v):
     result = []
     for d in doc:
         row = [1] + ([0] * len(v))
@@ -173,3 +172,28 @@ def logistic_regression(binX, Y):
     plt.show()
 
     return theta, history
+
+
+def scoreing(Test_X, theta, actual):
+    true_count = 0
+    false_positive = 0
+    false_negative = 0
+    count = 0
+    logisticFn = lambda X, W: 1 / (1 + np.exp(-X.dot(W)))
+    predict = logisticFn(Test_X, theta) > 0.5
+
+    for i in range(len(predict)):
+        if predict[i] == actual[i]:
+            true_count += 1
+        elif predict[i] == "True" and actual[i] == "False":
+            false_positive += 1
+        elif predict[i] == "False" and actual[i] == "True":
+            false_negative += 1
+
+        count += 1
+    precision = true_count / count
+    accuracy = true_count / (true_count + false_positive)
+    recall = true_count / (true_count + false_negative)
+    f1 = 2 / ((1 / precision) + (1 / recall))
+
+    return (precision, accuracy, recall, f1)
