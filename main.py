@@ -1,6 +1,7 @@
 import Dao_email
 import linear_logistic
 import naver_extraction
+import matplotlib.pyplot as plt
 
 
 def test():
@@ -13,6 +14,9 @@ def test():
     test_tdm, test_target = linear_logistic.separate_target(test_set, linear_logistic.split(), v)
 
     theta, history = linear_logistic.logistic_regression(tdm, target, 1000, 0.1)
+
+    plt.plot(history)
+    plt.show()
 
     linear_logistic.scoreing(test_tdm, theta, test_target)
 

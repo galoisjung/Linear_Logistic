@@ -164,11 +164,9 @@ def logistic_regression(binX, Y, cnt, h):
         v = logisticDerivFn(binX, Y, theta)
         u = v / np.linalg.norm(v)
         theta = theta + h * u
-        if j % 1000 == 0:
+        if j % 10 == 0:
             history.append((-logisticLossFn(binX, Y, theta)))
 
-    plt.plot(history)
-    plt.show()
 
     return theta, history
 
