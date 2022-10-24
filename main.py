@@ -45,7 +45,9 @@ def make_average(cnt):
 
     print("")
 
-    print("====================결론======================")
+    print("====================Total======================")
+
+    print("")
 
     print("++++++++++linear_regression++++++++++")
     print("precision:" + str(l_total[0]))
