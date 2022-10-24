@@ -2,6 +2,7 @@ import Dao_email
 import linear_logistic
 import naver_extraction
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def test():
@@ -21,10 +22,41 @@ def test():
     plt.plot(l_history, c='red')
     plt.show()
 
-
     print("++++++++++linear_regression++++++++++")
-    linear_logistic.scoreing(test_tdm, l_theta, test_target, 1)
+    l_result = linear_logistic.scoreing(test_tdm, l_theta, test_target, 1)
 
     print("++++++++++logistic_regression++++++++++")
-    linear_logistic.scoreing(test_tdm, theta, test_target)
+    result = linear_logistic.scoreing(test_tdm, theta, test_target)
 
+    return np.array(l_result), np.array(result)
+
+
+def make_average(cnt):
+    l_result = np.array([0] * 4)
+    result = np.array([0] * 4)
+
+    for _ in range(cnt):
+        a, b = test()
+        l_result = l_result + a
+        result = result + b
+
+    l_total = l_result / cnt
+    total = result / cnt
+
+    print("")
+
+    print("====================결론======================")
+
+    print("++++++++++linear_regression++++++++++")
+    print("precision:" + str(l_total[0]))
+    print("accuracy:" + str(l_total[1]))
+    print("Recall:" + str(l_total[2]))
+    print("F1-score" + str(l_total[3]))
+
+    print("===========================================")
+
+    print("++++++++++logistic_regression++++++++++")
+    print("precision:" + str(total[0]))
+    print("accuracy:" + str(total[1]))
+    print("Recall:" + str(total[2]))
+    print("F1-score" + str(total[3]))
