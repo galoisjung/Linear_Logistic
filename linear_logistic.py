@@ -218,6 +218,7 @@ def scoreing(Test_X, theta, actual, nb=0):
     recall = true_count / (true_count + false_negative)
     f1 = 2 / ((1 / precision) + (1 / recall))
 
+
     print("precision:" + str(precision))
     print("accuracy:" + str(accuracy))
     print("Recall:" + str(recall))

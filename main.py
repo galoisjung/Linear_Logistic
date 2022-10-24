@@ -21,8 +21,10 @@ def test():
     plt.plot(l_history, c='red')
     plt.show()
 
-    print("logistic_regression")
-    linear_logistic.scoreing(test_tdm, theta, test_target)
-    print("=================================================")
-    print("linear_regression")
+
+    print("++++++++++linear_regression++++++++++")
     linear_logistic.scoreing(test_tdm, l_theta, test_target, 1)
+
+    print("++++++++++logistic_regression++++++++++")
+    linear_logistic.scoreing(test_tdm, theta, test_target)
+
