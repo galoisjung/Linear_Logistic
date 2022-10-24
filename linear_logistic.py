@@ -148,6 +148,27 @@ def making_dtm(doc, method, v):
     return np.array(result)
 
 
+def linear_regression(binX, Y, cnt, h):
+    linearFn = lambda X, W: X.dot(W)
+    linearDerivFn = lambda X, Y, W: 2 * X.T.dot(Y - X.dot(W))
+
+    lossFn = lambda X, Y, W: np.linalg.norm(Y - linearFn(X, W))
+    theta = np.random.rand(binX.shape[-1])
+    i = cnt
+
+    history = list()
+
+    for j in range(i):
+        print(j)
+        v = linearDerivFn(binX, Y, theta)
+        u = v / np.linalg.norm(v)
+        theta = theta + h * u
+        if j % 10 == 0:
+            history.append(lossFn(binX, Y, theta))
+
+    return theta, history
+
+
 def logistic_regression(binX, Y, cnt, h):
     logisticFn = lambda X, W: 1 / (1 + np.exp(-X.dot(W)))
     logisticDerivFn = lambda X, Y, W: X.T.dot(Y - logisticFn(X, W))
@@ -167,18 +188,21 @@ def logistic_regression(binX, Y, cnt, h):
         if j % 10 == 0:
             history.append((-logisticLossFn(binX, Y, theta)))
 
-
     return theta, history
 
 
-def scoreing(Test_X, theta, actual):
+def scoreing(Test_X, theta, actual, nb=0):
     true_count = 0
     false_positive = 0
     false_negative = 0
     count = 0
-    logisticFn = lambda X, W: 1 / (1 + np.exp(-X.dot(W)))
-    predict = logisticFn(Test_X, theta) > 0.5
 
+    if nb == 0:
+        logisticFn = lambda X, W: 1 / (1 + np.exp(-X.dot(W)))
+        predict = logisticFn(Test_X, theta) > 0.5
+    else:
+        linearFn = lambda X, W: X.dot(W)
+        predict = linearFn(Test_X, theta) > 0.5
 
     for i in range(len(predict)):
         if predict[i] == actual[i]:
@@ -200,5 +224,3 @@ def scoreing(Test_X, theta, actual):
     print("F1-score" + str(f1))
 
     return (precision, accuracy, recall, f1)
-
-
