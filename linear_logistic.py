@@ -148,13 +148,12 @@ def making_dtm(doc, method, v):
     return np.array(result)
 
 
-def logistic_regression(binX, Y):
+def logistic_regression(binX, Y, cnt, h):
     logisticFn = lambda X, W: 1 / (1 + np.exp(-X.dot(W)))
     logisticDerivFn = lambda X, Y, W: X.T.dot(Y - logisticFn(X, W))
 
     theta = np.random.rand(binX.shape[-1])
-    h = 0.1
-    i = 20000
+    i = cnt
     history = list()
 
     logisticLossFn = lambda X, Y, W: Y[Y == 1].dot(np.log(1e-10 + logisticFn(X[Y == 1], W))) \
@@ -182,12 +181,13 @@ def scoreing(Test_X, theta, actual):
     logisticFn = lambda X, W: 1 / (1 + np.exp(-X.dot(W)))
     predict = logisticFn(Test_X, theta) > 0.5
 
+
     for i in range(len(predict)):
         if predict[i] == actual[i]:
             true_count += 1
-        elif predict[i] == "True" and actual[i] == "False":
+        elif predict[i] == True and actual[i] == False:
             false_positive += 1
-        elif predict[i] == "False" and actual[i] == "True":
+        elif predict[i] == False and actual[i] == True:
             false_negative += 1
 
         count += 1
@@ -196,4 +196,11 @@ def scoreing(Test_X, theta, actual):
     recall = true_count / (true_count + false_negative)
     f1 = 2 / ((1 / precision) + (1 / recall))
 
+    print("precision:" + str(precision))
+    print("accuracy:" + str(accuracy))
+    print("Recall:" + str(recall))
+    print("F1-score" + str(f1))
+
     return (precision, accuracy, recall, f1)
+
+
