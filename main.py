@@ -45,7 +45,7 @@ def make_average(cnt):
 
     print("")
 
-    print("====================Total======================")
+    print("--------------Total--------------")
 
     print("")
 
